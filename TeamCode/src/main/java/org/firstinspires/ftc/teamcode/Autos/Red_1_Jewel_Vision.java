@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Autos;
 
         import android.graphics.Bitmap;
         import android.graphics.BitmapFactory;
