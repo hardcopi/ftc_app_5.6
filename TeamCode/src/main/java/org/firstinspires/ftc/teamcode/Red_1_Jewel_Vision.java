@@ -13,7 +13,7 @@ package org.firstinspires.ftc.teamcode;
         import java.io.IOException;
 
 
-@Autonomous(name="DogeCV Jewel Detector", group="Fire Wires: Test")
+@Autonomous(name="Red 1 - Jewel Detector", group="Fire Wires: Test")
 
 public class Red_1_Jewel_Vision extends OpMode
 {

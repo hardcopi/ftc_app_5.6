@@ -98,8 +98,7 @@ public class Mecanum_Teleop extends OpMode {
         /* End Mecanum Section */
 
 
-        robot.liftMotor.setPower(-gamepad2.left_stick_y * 0.65);
-
+        robot.liftMotor.setPower(gamepad2.left_stick_y * 1);
 
         // Use gamepad left & right Bumpers to open and close the claw
         if (gamepad2.right_bumper)
@@ -108,7 +107,7 @@ public class Mecanum_Teleop extends OpMode {
             clawOffset -= CLAW_SPEED;
 
         // Move both servos to new position.  Assume servos are mirror image of each other.
-        clawOffset = Range.clip(clawOffset, -0.5, 0.5);
+        clawOffset = Range.clip(clawOffset, -0.65, 0);
         robot.leftClaw.setPosition(robot.MID_SERVO + clawOffset);
         robot.rightClaw.setPosition(robot.MID_SERVO - clawOffset);
 

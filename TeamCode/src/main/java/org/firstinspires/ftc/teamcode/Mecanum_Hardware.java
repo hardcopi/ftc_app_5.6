@@ -47,9 +47,13 @@ public class Mecanum_Hardware
     public DcMotor leftBack   = null;
     public DcMotor rightBack  = null;
     public DcMotor liftMotor  = null;
+    // public DcMotor relicMotor = null;
 
     public Servo leftClaw    = null;
     public Servo rightClaw   = null;
+    public Servo jewelArm   = null; 
+    // public Servo wrist      = null;
+    // public Servo hand       = null; 
 
 
     public static final double MID_SERVO       =  0.5 ;
@@ -72,11 +76,13 @@ public class Mecanum_Hardware
         leftBack  = hwMap.get(DcMotor.class, "leftBack");
         rightBack = hwMap.get(DcMotor.class, "rightBack");
         liftMotor = hwMap.get(DcMotor.class, "liftMotor");
+        // relicMotor = hwMap.get(DcMotor.class, "relicMotor");
 
         leftFront.setDirection(DcMotor.Direction.REVERSE);
         rightFront.setDirection(DcMotor.Direction.FORWARD);
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
+        // relicMotor.setDirection(DcMotor.Direction.FORWARD);
 
         liftMotor.setDirection(DcMotor.Direction.REVERSE);
 
@@ -89,8 +95,16 @@ public class Mecanum_Hardware
 
         leftClaw  = hwMap.get(Servo.class, "leftClaw");
         rightClaw = hwMap.get(Servo.class, "rightClaw");
+        jewelArm = hwMap.get(Servo.class, "jewelArm");
+        // wrist = hwMap.get(Servo.class, "wrist");
+        // hand = hwMap.get(Servo.class, "hand");
+        
+        // wrist.setPosition(1);
+        // hand.setPosition(1);
+        
         leftClaw.setPosition(MID_SERVO);
         rightClaw.setPosition(MID_SERVO);
+        jewelArm.setPosition(MID_SERVO);
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
@@ -100,6 +114,13 @@ public class Mecanum_Hardware
         rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+    }
+
+    public void driveForward(double power) {
+        leftFront.setPower(-power);
+        rightFront.setPower(-power);
+        leftBack.setPower(-power);
+        rightBack.setPower(-power);
     }
  }
 
