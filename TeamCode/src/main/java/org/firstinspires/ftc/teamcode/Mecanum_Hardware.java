@@ -29,10 +29,26 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.disnodeteam.dogecv.CameraViewDisplay;
+import com.disnodeteam.dogecv.detectors.JewelDetector;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
 /**
  * This is NOT an opmode.
@@ -47,16 +63,21 @@ public class Mecanum_Hardware
     public DcMotor leftBack   = null;
     public DcMotor rightBack  = null;
     public DcMotor liftMotor  = null;
-    // public DcMotor relicMotor = null;
+    public DcMotor relicMotor = null;
 
     public Servo leftClaw    = null;
     public Servo rightClaw   = null;
-    public Servo jewelArm   = null; 
-    // public Servo wrist      = null;
-    // public Servo hand       = null; 
+    public Servo leftClaw2    = null;
+    public Servo rightClaw2   = null;
+    public Servo jewelArm   = null;
+    public Servo wrist      = null;
+    public Servo hand       = null;
 
+    private JewelDetector jewelDetector = null;
+    OpenGLMatrix lastLocation = null;
+    VuforiaLocalizer vuforia;
 
-    public static final double MID_SERVO       =  0.5 ;
+    public static final double MID_SERVO       =  0 ;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
@@ -76,13 +97,13 @@ public class Mecanum_Hardware
         leftBack  = hwMap.get(DcMotor.class, "leftBack");
         rightBack = hwMap.get(DcMotor.class, "rightBack");
         liftMotor = hwMap.get(DcMotor.class, "liftMotor");
-        // relicMotor = hwMap.get(DcMotor.class, "relicMotor");
+        relicMotor = hwMap.get(DcMotor.class, "relicMotor");
 
         leftFront.setDirection(DcMotor.Direction.REVERSE);
         rightFront.setDirection(DcMotor.Direction.FORWARD);
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
-        // relicMotor.setDirection(DcMotor.Direction.FORWARD);
+        relicMotor.setDirection(DcMotor.Direction.FORWARD);
 
         liftMotor.setDirection(DcMotor.Direction.REVERSE);
 
@@ -95,16 +116,20 @@ public class Mecanum_Hardware
 
         leftClaw  = hwMap.get(Servo.class, "leftClaw");
         rightClaw = hwMap.get(Servo.class, "rightClaw");
+        leftClaw2  = hwMap.get(Servo.class, "leftClaw2");
+        rightClaw2 = hwMap.get(Servo.class, "rightClaw2");
         jewelArm = hwMap.get(Servo.class, "jewelArm");
-        // wrist = hwMap.get(Servo.class, "wrist");
-        // hand = hwMap.get(Servo.class, "hand");
-        
-        // wrist.setPosition(1);
-        // hand.setPosition(1);
-        
-        leftClaw.setPosition(MID_SERVO);
-        rightClaw.setPosition(MID_SERVO);
-        jewelArm.setPosition(MID_SERVO);
+        wrist = hwMap.get(Servo.class, "wrist");
+        hand = hwMap.get(Servo.class, "hand");
+
+        hand.setPosition(1);
+
+//        leftClaw.setPosition(MID_SERVO);
+//        rightClaw.setPosition(MID_SERVO);
+//        leftClaw2.setPosition(MID_SERVO);
+//        rightClaw2.setPosition(MID_SERVO);
+
+        jewelArm.setPosition(1);
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
@@ -113,6 +138,7 @@ public class Mecanum_Hardware
         leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        relicMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
     }
 
@@ -122,5 +148,70 @@ public class Mecanum_Hardware
         leftBack.setPower(-power);
         rightBack.setPower(-power);
     }
- }
+
+    public String jewelDetect() {
+        String jewelColor;
+        /** Initialize the Jewel Detector and Wait for Start **/
+        jewelDetector = new JewelDetector();
+        jewelDetector.init(hwMap.appContext, CameraViewDisplay.getInstance());
+        jewelDetector.areaWeight = 0.02;
+        jewelDetector.detectionMode = JewelDetector.JewelDetectionMode.MAX_AREA;
+        jewelDetector.debugContours = true;
+        jewelDetector.maxDiffrence = 15;
+        jewelDetector.ratioWeight = 15;
+        jewelDetector.minArea = 700;
+
+        /** Enable Jewel Detector and send code to drive station **/
+        jewelDetector.enable();
+        sleep(1000);
+        jewelColor = jewelDetector.getCurrentOrder().toString();
+        jewelDetector.disable();
+        return jewelColor;
+    }
+
+    public String vuMarkDetect() {
+        String vuMarkLocation;
+        /** Enable Vuforia **/
+        int cameraMonitorViewId = hwMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+        parameters.vuforiaLicenseKey = "Abh5GtX/////AAAAGU4NACwqzktehPb5VWgSwz2AjhTTfzNOC7Ciqyt5D89oGI437qoF33JZdyt7GE62AqzqCBkVfIajxpJrTYwgxdVrPSMpFUd3TkkYpzwCKKKeRS4JziYmfmix5qzjLvphfWwvFvdSq4LtBVQ7VlXOAzRSX2aSZGGUb+X/926ZWmbpTqwkMPaFnYOchlv/pwolE9UXjqDBdU+xw8XVsuZxILg+4sDsskgXLJljck2qfqTPJRbCabMM22gSup4ZrPO53XFVqXh/Klzgck2dWvKX0Y5nUIPmLrgxAQKlfvMVZP01B91HqUV8SccYYZ0sz5XELshuugDUIRFj70qoLLsFDy69vkVmW31UfSRWL7Altksa\n";
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
+        VuforiaTrackables relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark");
+        VuforiaTrackable relicTemplate = relicTrackables.get(0);
+        relicTemplate.setName("relicVuMarkTemplate"); // can help in debugging; otherwise not necessary
+        relicTrackables.activate();
+        sleep(1000);
+
+        RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
+        if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
+            OpenGLMatrix pose = ((VuforiaTrackableDefaultListener)relicTemplate.getListener()).getPose();
+            if (pose != null) {
+                VectorF trans = pose.getTranslation();
+                Orientation rot = Orientation.getOrientation(pose, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+                double tX = trans.get(0);
+                double tY = trans.get(1);
+                double tZ = trans.get(2);
+                double rX = rot.firstAngle;
+                double rY = rot.secondAngle;
+                double rZ = rot.thirdAngle;
+            }
+            vuMarkLocation = vuMark.toString();
+        }
+        else {
+            vuMarkLocation = "Not Visible";
+        }
+
+        relicTrackables.deactivate();
+        return vuMarkLocation;
+    }
+
+    public void sleep(long duration) {
+        try {
+            Thread.sleep(duration);
+        }
+        catch(InterruptedException e) {
+        }
+    }
+}
 

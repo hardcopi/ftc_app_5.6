@@ -14,7 +14,7 @@ public class Red_2 extends LinearOpMode {
     Mecanum_Hardware robot       = new Mecanum_Hardware();
     private ElapsedTime     runtime = new ElapsedTime();
 
-    static final double     FORWARD_SPEED = 0.3;
+    static final double     FORWARD_SPEED = 0.4;
     static final double     TURN_SPEED    = 0.5;
     static final double     MID_SERVO     = 0.5;
 
@@ -26,8 +26,12 @@ public class Red_2 extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        robot.leftClaw.setPosition(-1);
         robot.rightClaw.setPosition(1);
+        robot.rightClaw2.setPosition(1);
+
+        robot.leftClaw.setPosition(0);
+        robot.leftClaw2.setPosition(0);
+
         sleep(1000);
         
         robot.liftMotor.setPower(-1);
@@ -39,7 +43,7 @@ public class Red_2 extends LinearOpMode {
         robot.rightFront.setPower(-FORWARD_SPEED);
         robot.leftBack.setPower(-FORWARD_SPEED);
         robot.rightBack.setPower(-FORWARD_SPEED);
-        sleep(1250);
+        sleep(1000);
         robot.leftFront.setPower(0);
         robot.rightFront.setPower(0);
         robot.leftBack.setPower(0);
@@ -50,18 +54,19 @@ public class Red_2 extends LinearOpMode {
         robot.rightFront.setPower(.5);
         robot.leftBack.setPower(-.5);
         robot.rightBack.setPower(.5);
-        sleep(2000);
+        sleep(2300);
         
         robot.leftFront.setPower(0);
         robot.rightFront.setPower(0);
         robot.leftBack.setPower(0);
         robot.rightBack.setPower(0);
 
+        //Strafe
         robot.leftFront.setPower(-FORWARD_SPEED);
         robot.rightFront.setPower(FORWARD_SPEED);
         robot.leftBack.setPower(FORWARD_SPEED);
         robot.rightBack.setPower(-FORWARD_SPEED);
-        sleep(1450);
+        sleep(2550);
         robot.leftFront.setPower(0);
         robot.rightFront.setPower(0);
         robot.leftBack.setPower(0);
@@ -79,8 +84,12 @@ public class Red_2 extends LinearOpMode {
         robot.leftBack.setPower(0);
         robot.rightBack.setPower(0);
 
+        robot.rightClaw.setPosition(0);
+        robot.rightClaw2.setPosition(0);
+
         robot.leftClaw.setPosition(1);
-        robot.rightClaw.setPosition(-1);
+        robot.leftClaw2.setPosition(1);
+
         sleep(1000);
 
         /* Drive Backwards */
@@ -114,6 +123,8 @@ public class Red_2 extends LinearOpMode {
         robot.rightFront.setPower(0);
         robot.leftBack.setPower(0);
         robot.rightBack.setPower(0);
+
+        robot.wrist.setPosition(.9);
         
         telemetry.addData("Auto", "Complete");
         telemetry.update();

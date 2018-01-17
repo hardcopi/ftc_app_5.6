@@ -26,8 +26,11 @@ public class Blue_1 extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        robot.leftClaw.setPosition(-1);
         robot.rightClaw.setPosition(1);
+        robot.rightClaw2.setPosition(1);
+        robot.leftClaw.setPosition(0);
+        robot.leftClaw2.setPosition(0);
+
         sleep(1000);
         
         robot.liftMotor.setPower(-1);
@@ -71,8 +74,11 @@ public class Blue_1 extends LinearOpMode {
         robot.leftBack.setPower(0);
         robot.rightBack.setPower(0);
 
+        robot.rightClaw.setPosition(0);
+        robot.rightClaw2.setPosition(0);
         robot.leftClaw.setPosition(1);
-        robot.rightClaw.setPosition(-1);
+        robot.leftClaw2.setPosition(1);
+
         sleep(1000);
 
         /* Drive Backwards */
@@ -106,7 +112,8 @@ public class Blue_1 extends LinearOpMode {
         robot.rightFront.setPower(0);
         robot.leftBack.setPower(0);
         robot.rightBack.setPower(0);
-        
+        robot.wrist.setPosition(.9);
+
         telemetry.addData("Auto", "Complete");
         telemetry.update();
         sleep(1000);

@@ -15,7 +15,7 @@ public class Red_1 extends LinearOpMode {
     private ElapsedTime     runtime = new ElapsedTime();
 
     static final double     FORWARD_SPEED = 0.3;
-    static final double     TURN_SPEED    = 0.5;
+    static final double     TURN_SPEED    = 0.6;
     static final double     MID_SERVO     = 0.5;
 
     @Override
@@ -26,13 +26,18 @@ public class Red_1 extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        robot.leftClaw.setPosition(-1);
         robot.rightClaw.setPosition(1);
+        robot.rightClaw2.setPosition(1);
+        robot.leftClaw.setPosition(0);
+        robot.leftClaw2.setPosition(0);
+
         sleep(1000);
-        
+        robot.liftMotor.setPower(-1);
+        sleep(500);
+        robot.liftMotor.setPower(0);
         /* Drive Forward */
         robot.driveForward(FORWARD_SPEED);
-        sleep(1750);
+        sleep(1850);
         robot.driveForward(0);
 
 
@@ -40,8 +45,8 @@ public class Red_1 extends LinearOpMode {
         robot.leftFront.setPower(-.5);
         robot.rightFront.setPower(.5);
         robot.leftBack.setPower(-.5);
-        robot.rightBack.setPower(.5);
-        sleep(750);
+        robot.rightBack.setPower(.7);
+        sleep(1100);
         
         robot.leftFront.setPower(0);
         robot.rightFront.setPower(0);
@@ -60,8 +65,11 @@ public class Red_1 extends LinearOpMode {
         robot.leftBack.setPower(0);
         robot.rightBack.setPower(0);
 
+        robot.rightClaw.setPosition(0);
+        robot.rightClaw2.setPosition(0);
+
         robot.leftClaw.setPosition(1);
-        robot.rightClaw.setPosition(-1);
+        robot.leftClaw2.setPosition(1);
         sleep(1000);
 
         /* Drive Backwards */
@@ -95,9 +103,13 @@ public class Red_1 extends LinearOpMode {
         robot.rightFront.setPower(0);
         robot.leftBack.setPower(0);
         robot.rightBack.setPower(0);
-        
+
+        robot.wrist.setPosition(.9);
         telemetry.addData("Auto", "Complete");
         telemetry.update();
         sleep(1000);
+
+
+//        opModeManager.initActiveOpMode("Mecanum_Competition");
     }
 }
